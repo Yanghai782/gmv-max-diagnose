@@ -45,7 +45,7 @@ export default function CsvUpload({ breakevenROI, onDiagnoseCreative }: Props) {
           }
           setLoading(false);
         },
-        error: (err) => {
+        error: (err: Error) => {
           setError(`CSV 解析错误：${err.message}`);
           setLoading(false);
         },
