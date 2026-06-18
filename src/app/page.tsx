@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
@@ -19,6 +19,9 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [breakevenROI, setBreakevenROI] = useState(3.0);
+  const [planCreationDate, setPlanCreationDate] = useState("");
+  const [targetROI, setTargetROI] = useState(0);
+  const [unitPrice, setUnitPrice] = useState(0);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -87,16 +90,11 @@ export default function Home() {
               setMessages((prev) => {
                 const copy = [...prev];
                 const last = copy[copy.length - 1];
-                copy[copy.length - 1] = {
-                  ...last,
-                  content: last.content + delta,
-                };
+                copy[copy.length - 1] = { ...last, content: last.content + delta };
                 return copy;
               });
             }
-          } catch {
-            // skip malformed chunks
-          }
+          } catch { /* skip malformed chunks */ }
         }
       }
     } catch (e) {
@@ -125,6 +123,10 @@ export default function Home() {
 - 订单数：${creative.conv}
 - GMV：$${creative.gmv.toFixed(2)}
 - ROI：${creative.roi.toFixed(2)}
+- CPA：$${creative.cpa.toFixed(2)}
+- GPM：$${creative.gpm.toFixed(2)}
+- 频次：${creative.frequency.toFixed(1)}
+- 健康评分：${creative.healthScore}/100
 - 触发规则：${creative.rules.join(", ") || "无"}
 - 当前分类：${creative.abcd} 类 · ${creative.actionText}
 
@@ -148,166 +150,94 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-4xl mx-auto">
-      {/* Header */}
-      <header className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 shrink-0">
+    <div className="flex flex-col h-screen max-w-5xl mx-auto">
+      <header className="flex items-center justify-between px-4 py-2.5 shrink-0" style={{ borderBottom: "1px solid var(--border-default)" }}>
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-sm font-semibold text-gray-900">
-              GMV Max 广告诊断
-            </h1>
-            <p className="text-xs text-gray-500">Powered by DeepSeek</p>
+            <h1 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>GMV Max 广告诊断</h1>
+            <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>Powered by DeepSeek</p>
           </div>
-          {/* Tabs */}
-          <div className="flex bg-gray-100 rounded-lg p-0.5">
-            <button
-              onClick={() => setTab("chat")}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                tab === "chat"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              对话诊断
-            </button>
-            <button
-              onClick={() => setTab("batch")}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                tab === "batch"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              批量分类
-            </button>
+          <div className="tabs">
+            <button onClick={() => setTab("chat")} className={`tab ${tab === "chat" ? "active" : ""}`}>对话诊断</button>
+            <button onClick={() => setTab("batch")} className={`tab ${tab === "batch" ? "active" : ""}`}>批量分类</button>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {/* Breakeven ROI input */}
-          <label className="flex items-center gap-1.5 text-xs text-gray-500">
-            保本 ROI
-            <input
-              type="number"
-              value={breakevenROI}
-              onChange={(e) =>
-                setBreakevenROI(parseFloat(e.target.value) || 1.0)
-              }
-              step="0.1"
-              min="0.1"
-              className="w-16 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+          <label className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
+            保本ROI
+            <input type="number" value={breakevenROI} onChange={(e) => setBreakevenROI(parseFloat(e.target.value) || 1.0)} step="0.1" min="0.1" className="w-16" />
           </label>
-          <button
-            onClick={() => {
-              setMessages([]);
-              setInput("");
-            }}
-            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            清空对话
-          </button>
+          <label className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
+            单价($)
+            <input type="number" value={unitPrice || ""} onChange={(e) => setUnitPrice(parseFloat(e.target.value) || 0)} step="0.01" min="0" placeholder="售价" className="w-16" />
+          </label>
+          <label className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
+            目标ROI
+            <input type="number" value={targetROI || ""} onChange={(e) => setTargetROI(parseFloat(e.target.value) || 0)} step="0.1" min="0" placeholder="GMV MAX" className="w-16" />
+          </label>
+          <button onClick={() => { setMessages([]); setInput(""); }} className="btn btn-ghost btn-sm">清空对话</button>
         </div>
       </header>
 
-      {/* Content */}
-      {tab === "chat" ? (
-        <>
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-            {messages.length === 0 && (
-              <div className="text-center text-gray-400 mt-20">
-                <p className="text-lg font-medium mb-1">
-                  GMV Max 广告诊断工具
-                </p>
-                <p className="text-sm">
-                  输入广告数据（消耗、ROI、CTR、CVR、订单数等），获取阶段判定和操作建议
-                </p>
-              </div>
-            )}
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`flex ${
-                  msg.role === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-[85%] rounded-lg px-4 py-2.5 text-sm leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-900 prose prose-sm max-w-none prose-headings:text-gray-900 prose-table:text-sm prose-th:px-2 prose-td:px-2 prose-th:py-1 prose-td:py-1 prose-code:text-xs prose-code:bg-gray-200 prose-code:px-1 prose-code:rounded"
-                  }`}
-                >
-                  {msg.role === "assistant" ? (
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {msg.content ||
-                        (loading && i === messages.length - 1
-                          ? "思考中..."
-                          : "")}
-                    </ReactMarkdown>
-                  ) : (
-                    <p className="whitespace-pre-wrap">{msg.content}</p>
-                  )}
-                </div>
-              </div>
-            ))}
-            <div ref={chatEndRef} />
-          </div>
-
-          <div className="border-t border-gray-200 px-4 py-3 shrink-0">
-            <div className="flex gap-2">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="输入广告数据或诊断问题..."
-                rows={2}
-                className="flex-1 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                disabled={loading}
-              />
-              <button
-                onClick={handleSubmit}
-                disabled={loading || !input.trim()}
-                className="shrink-0 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {loading ? "..." : "发送"}
-              </button>
+      <div hidden={tab !== "chat"} className="flex-1 flex flex-col">
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+          {messages.length === 0 && (
+            <div className="text-center mt-20" style={{ color: "var(--text-tertiary)" }}>
+              <p className="text-lg font-semibold mb-1" style={{ color: "var(--text-primary)" }}>GMV Max 广告诊断工具</p>
+              <p className="text-sm">输入广告数据（消耗、ROI、CTR、CVR、订单数等），获取阶段判定和操作建议</p>
             </div>
-            <p className="text-xs text-gray-400 mt-1.5">
-              Enter 发送 · Shift+Enter 换行
-            </p>
-          </div>
-        </>
-      ) : (
-        <div className="flex-1 overflow-y-auto px-4 py-4">
-          <div className="mb-4">
-            <p className="text-sm font-medium text-gray-700 mb-2">
-              上传 TikTok GMV MAX 素材报表，自动按 CTR/CVR/ROI/消耗 进行 ABCD 四类分级
-            </p>
-            <div className="flex flex-wrap gap-2 text-[11px]">
-              <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
-                A 保留加预算
-              </span>
-              <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">
-                B 优化后保留
-              </span>
-              <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
-                C 加热测试
-              </span>
-              <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold">
-                D 直接关停
-              </span>
-              <span className="bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-semibold border border-red-200">
-                剔除: CTR&lt;1% / CVR&lt;1.5%
-              </span>
+          )}
+          {messages.map((msg, i) => (
+            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[85%] rounded-lg px-4 py-2.5 text-sm leading-relaxed ${msg.role === "user" ? "msg-user" : "msg-assistant prose max-w-none"}`}>
+                {msg.role === "assistant" ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {msg.content || (loading && i === messages.length - 1 ? "思考中..." : "")}
+                  </ReactMarkdown>
+                ) : (
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                )}
+              </div>
             </div>
-          </div>
-          <CsvUpload
-            breakevenROI={breakevenROI}
-            onDiagnoseCreative={handleDiagnoseCreative}
-          />
+          ))}
+          <div ref={chatEndRef} />
         </div>
-      )}
+        <div className="px-4 py-3 shrink-0" style={{ borderTop: "1px solid var(--border-default)" }}>
+          <div className="flex gap-2">
+            <textarea ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown}
+              placeholder="输入广告数据或诊断问题..." rows={2} disabled={loading}
+              className="flex-1 resize-none rounded-lg px-3 py-2 text-sm"
+            />
+            <button onClick={handleSubmit} disabled={loading || !input.trim()} className="btn btn-primary shrink-0">
+              {loading ? "..." : "发送"}
+            </button>
+          </div>
+          <p className="text-xs mt-1.5" style={{ color: "var(--text-tertiary)" }}>Enter 发送 · Shift+Enter 换行</p>
+        </div>
+      </div>
+
+      <div hidden={tab !== "batch"} className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="mb-4">
+          <div className="flex items-center gap-3 mb-3">
+            <label className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
+              计划创建日
+              <input type="date" value={planCreationDate} onChange={(e) => setPlanCreationDate(e.target.value)} />
+            </label>
+            <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>用于判定阶段和学习进度</p>
+          </div>
+          <p className="text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>
+            上传 TikTok GMV MAX 素材报告，自动按 CTR/CVR/ROI/消耗进行 ABCD 四类分级
+          </p>
+          <div className="flex flex-wrap gap-2" style={{ fontSize: 12 }}>
+            <span className="badge badge-a">A 保留加预算</span>
+            <span className="badge badge-b">B 优化后保留</span>
+            <span className="badge badge-c">C 加热测试</span>
+            <span className="badge badge-d">D 直接关停</span>
+            <span className="badge" style={{ background: "rgba(248,81,73,0.08)", color: "var(--accent-red)" }}>剔除: CTR{"<"}1% / CVR{"<"}1.5%</span>
+          </div>
+        </div>
+        <CsvUpload unitPrice={unitPrice} breakevenROI={breakevenROI} planCreationDate={planCreationDate} targetROI={targetROI} onDiagnoseCreative={handleDiagnoseCreative} />
+      </div>
     </div>
   );
 }
