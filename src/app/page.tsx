@@ -111,6 +111,18 @@ export default function Home() {
     }
   }, [input, loading, messages]);
 
+  const handleScriptGenerate = useCallback(
+    (prompt: string) => {
+      setInput(prompt);
+      setTab("chat");
+      setTimeout(() => {
+        const sendBtn = document.querySelector('button.btn-primary.shrink-0') as HTMLButtonElement;
+        if (sendBtn && prompt.trim()) sendBtn.click();
+      }, 200);
+    },
+    []
+  );
+
   const handleDiagnoseCreative = useCallback(
     (creative: ClassifiedCreative) => {
       const prompt = `诊断这条 ${creative.abcd} 类素材：
@@ -236,7 +248,7 @@ export default function Home() {
             <span className="badge" style={{ background: "rgba(248,81,73,0.08)", color: "var(--accent-red)" }}>剔除: CTR{"<"}1% / CVR{"<"}1.5%</span>
           </div>
         </div>
-        <CsvUpload unitPrice={unitPrice} breakevenROI={breakevenROI} planCreationDate={planCreationDate} targetROI={targetROI} onDiagnoseCreative={handleDiagnoseCreative} />
+        <CsvUpload unitPrice={unitPrice} breakevenROI={breakevenROI} planCreationDate={planCreationDate} targetROI={targetROI} onDiagnoseCreative={handleDiagnoseCreative} onScriptGenerate={handleScriptGenerate} />
       </div>
     </div>
   );
