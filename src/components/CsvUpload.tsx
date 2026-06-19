@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import Papa from "papaparse";
@@ -245,26 +245,9 @@ export default function CsvUpload({ breakevenROI, unitPrice, planCreationDate, t
               onClick={() => {
                 if (!scriptProduct.trim()) return;
                 const prompt = "为产品《" + scriptProduct + "》生成一套GMV Max素材方案：\n\n1. 时间范围建议（冷启几天？何时放量？）\n2. 一条15秒素材脚本（含开头Hook + 中间展示 + CTA）\n3. 三个不同的开头钩子方案\n\n请基于壹木行万里的GMV Max方法论给出建议。";
-                setShowScriptInput(false); console.log("GMV:gen");
+                setShowScriptInput(false);
                 setScriptProduct("");
-                // Switch to chat tab, fill input, auto-submit
-                setTimeout(() => {
-                  const tabs = document.querySelectorAll("button.tab");
-                  tabs.forEach((t) => { if (t.textContent?.includes("对话诊断")) (t as HTMLElement).click(); });
-                  setTimeout(() => {
-                    const ta = document.querySelector("textarea[placeholder*='广告数据']") as HTMLTextAreaElement;
-                    if (ta) {
-                      const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")?.set;
-                      setter?.call(ta, prompt);
-                      ta.dispatchEvent(new Event("input", { bubbles: true }));
-                      ta.dispatchEvent(new Event("change", { bubbles: true }));
-                      setTimeout(() => {
-                        const sendBtn = document.querySelector("button.btn-primary.shrink-0") as HTMLButtonElement;
-                        if (sendBtn && !sendBtn.disabled) sendBtn.click();
-                      }, 300);
-                    }
-                  }, 100);
-                }, 50);
+                onScriptGenerate?.(prompt);
               }}
               disabled={!scriptProduct.trim()}
               className="btn btn-primary btn-sm"

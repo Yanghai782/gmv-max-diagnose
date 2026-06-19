@@ -24,6 +24,7 @@ export default function Home() {
   const [unitPrice, setUnitPrice] = useState(0);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const sendBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -115,10 +116,11 @@ export default function Home() {
     (prompt: string) => {
       setInput(prompt);
       setTab("chat");
-      setTimeout(() => {
-        const sendBtn = document.querySelector('button.btn-primary.shrink-0') as HTMLButtonElement;
-        if (sendBtn && prompt.trim()) sendBtn.click();
-      }, 200);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          sendBtnRef.current?.click();
+        });
+      });
     },
     []
   );
@@ -220,7 +222,7 @@ export default function Home() {
               placeholder="输入广告数据或诊断问题..." rows={2} disabled={loading}
               className="flex-1 resize-none rounded-lg px-3 py-2 text-sm"
             />
-            <button onClick={handleSubmit} disabled={loading || !input.trim()} className="btn btn-primary shrink-0">
+            <button ref={sendBtnRef} onClick={handleSubmit} disabled={loading || !input.trim()} className="btn btn-primary shrink-0">
               {loading ? "..." : "发送"}
             </button>
           </div>
