@@ -304,7 +304,7 @@ export default function CsvUpload({ breakevenROI, unitPrice, planCreationDate, t
 
       {/* Results */}
       {result && (
-        <div className="space-y-4">
+        <div className="space-y-4 animate-in max-w-[1400px] mx-auto">
           {/* Stage + Learning Progress */}
           <div className="stat-card" style={{ textAlign: "left" }}>
             <div className="flex items-center justify-between mb-3">
@@ -332,7 +332,7 @@ export default function CsvUpload({ breakevenROI, unitPrice, planCreationDate, t
           </div>
 
           {/* Stat Cards */}
-          <div className="grid grid-cols-8 gap-2">
+          <div className="grid grid-cols-8 gap-2 animate-in animate-in-1">
             <div className="stat-card"><div className="stat-value" style={{ color: "var(--accent-blue)" }}>{result.total}</div><div className="stat-label">素材总数</div></div>
             <div className="stat-card"><div className="stat-value" style={{ color: "var(--accent-green)" }}>{result.keeps}</div><div className="stat-label">保留(A类)</div></div>
             <div className="stat-card"><div className="stat-value" style={{ color: "var(--accent-orange)" }}>{result.tests}</div><div className="stat-label">加热测试(C类)</div></div>

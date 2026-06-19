@@ -164,8 +164,9 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-5xl mx-auto">
-      <header className="flex items-center justify-between px-4 py-2.5 shrink-0" style={{ borderBottom: "1px solid var(--border-default)" }}>
+    <div className="flex flex-col h-screen">
+      <header className="app-header shrink-0" style={{ borderBottom: "1px solid var(--border-default)" }}>
+        <div className="flex items-center justify-between px-6 py-3 max-w-[1600px] mx-auto w-full">
         <div className="flex items-center gap-4">
           <div>
             <h1 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>GMV Max 广告诊断</h1>
@@ -179,21 +180,22 @@ export default function Home() {
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
             保本ROI
-            <input type="number" value={breakevenROI} onChange={(e) => setBreakevenROI(parseFloat(e.target.value) || 1.0)} step="0.1" min="0.1" className="w-16" />
+            <input type="number" value={breakevenROI} onChange={(e) => setBreakevenROI(parseFloat(e.target.value) || 1.0)} step="0.1" min="0.1" className="w-20" />
           </label>
           <label className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
             单价($)
-            <input type="number" value={unitPrice || ""} onChange={(e) => setUnitPrice(parseFloat(e.target.value) || 0)} step="0.01" min="0" placeholder="售价" className="w-16" />
+            <input type="number" value={unitPrice || ""} onChange={(e) => setUnitPrice(parseFloat(e.target.value) || 0)} step="0.01" min="0" placeholder="售价" className="w-20" />
           </label>
           <label className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
             目标ROI
-            <input type="number" value={targetROI || ""} onChange={(e) => setTargetROI(parseFloat(e.target.value) || 0)} step="0.1" min="0" placeholder="GMV MAX" className="w-16" />
+            <input type="number" value={targetROI || ""} onChange={(e) => setTargetROI(parseFloat(e.target.value) || 0)} step="0.1" min="0" placeholder="GMV MAX" className="w-20" />
           </label>
           <button onClick={() => { setMessages([]); setInput(""); }} className="btn btn-ghost btn-sm">清空对话</button>
         </div>
+        </div>
       </header>
 
-      <div hidden={tab !== "chat"} className="flex-1 flex flex-col">
+      <div hidden={tab !== "chat"} className="flex-1 flex flex-col animate-in max-w-3xl mx-auto w-full">
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
           {messages.length === 0 && (
             <div className="text-center mt-20" style={{ color: "var(--text-tertiary)" }}>
@@ -230,7 +232,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div hidden={tab !== "batch"} className="flex-1 overflow-y-auto px-4 py-4">
+      <div hidden={tab !== "batch"} className="flex-1 overflow-y-auto px-8 py-6 animate-in">
         <div className="mb-4">
           <div className="flex items-center gap-3 mb-3">
             <label className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
